@@ -1,5 +1,11 @@
 package ml_6002b_coursework;
 
+import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.RandomSubset;
+
+import java.io.FileReader;
+
 /**
  * lists of datasets available on blackboard for part 3 of the coursework.
  *
@@ -9,7 +15,7 @@ public class DatasetLists {
 
     public static String[] nominalAttributeProblems={
             "balance-scale",
-            "car-evaluation",
+            //"car-evaluation",
             "chess-krvk",
             "chess-krvkp",
             "connect-4",
@@ -71,5 +77,33 @@ public class DatasetLists {
             "wine-quality-white",
             "yeast",
     };
+
+
+        public static void main(String[] args) throws Exception {
+            String[] dataFiles = {
+                    "./src/main/java/ml_6002b_coursework/test_data/optdigits.arff",
+                    "./src/main/java/ml_6002b_coursework/test_data/Chinatown.arff"
+            };
+
+            for(String dataFile : dataFiles) {
+                // Load data
+                FileReader reader = new FileReader(dataFile);
+                Instances data = new Instances(reader);
+                data.setClassIndex(data.numAttributes() - 1);
+
+                RandomSubset filter = new RandomSubset();
+                filter.setNumAttributes(0.1);
+                filter.setInputFormat(data);
+                filter.setSeed(0);
+                Instances filteredInstances = Filter.useFilter(data, filter);
+                System.out.println(filteredInstances.toSummaryString());
+
+                filter.setInputFormat(data);
+                filter.setSeed(1255);
+                filteredInstances = Filter.useFilter(data, filter);
+                System.out.println(filteredInstances.toSummaryString());
+
+            }
+        }
 
 }

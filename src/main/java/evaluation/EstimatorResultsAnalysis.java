@@ -298,9 +298,9 @@ public class EstimatorResultsAnalysis {
         if(buildMatlabDiagrams) {
             MatlabController proxy = MatlabController.getInstance();
             proxy.eval("addpath(genpath('"+matlabFilePath+"'))");
-            matlab_buildCompResourcesDias(compMetrics);
+            //matlab_buildCompResourcesDias(compMetrics);
             matlab_buildCDDias(expname, statCliquesForCDDiasArr);
-            matlab_buildPairwiseScatterDiagrams(outPath, expname, metrics, results.getDatasetNamesInOutput());
+            //matlab_buildPairwiseScatterDiagrams(outPath, expname, metrics, results.getDatasetNamesInOutput());
         }
     }
 

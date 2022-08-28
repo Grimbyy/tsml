@@ -82,11 +82,11 @@ public class ROCDiagramMaker {
         return minClass;
     }
         
-    public static void matlab_buildROCDiagrams(String outPath, String expName, String dsetName, ClassifierResults[] cresults, String[] cnames) {   
-        matlab_buildROCDiagrams(outPath, expName, dsetName, cresults, cnames, findMinorityClass(cresults[0].getTrueClassValsAsArray()));
+    public static void matlab_buildROCDiagrams(String outPath, String expName, String dsetName, ClassifierResults[] cresults, String[] cnames, boolean disconnect) {
+        matlab_buildROCDiagrams(outPath, expName, dsetName, cresults, cnames, findMinorityClass(cresults[0].getTrueClassValsAsArray()), disconnect);
     }   
     
-    public static void matlab_buildROCDiagrams(String outPath, String expName, String dsetName, ClassifierResults[] cresults, String[] cnames, int positiveClassIndex) {      
+    public static void matlab_buildROCDiagrams(String outPath, String expName, String dsetName, ClassifierResults[] cresults, String[] cnames, int positiveClassIndex, boolean disconnectAfter) {
         String targetFolder = outPath + rocDiaPath;
         (new File(targetFolder)).mkdirs();
         
@@ -124,7 +124,9 @@ public class ROCDiagramMaker {
             //function [f] = roccurves(filepathandname,classifierNames,classValues,posClassProbs,posClassLabel,visible)
             proxy.eval("roccurves(m_fname, m_cnames, m_cvals, m_posClassProbs, m_posClass, 'off')");
             proxy.eval("clear");
-            proxy.discconnectMatlab();
+            if (disconnectAfter) {
+                proxy.discconnectMatlab();
+            }
         } catch (Exception io) {
             System.out.println("matlab_buildROCDiagrams failed while building " +targetFile+ "\n" + io);
         }
@@ -145,7 +147,7 @@ public class ROCDiagramMaker {
         }
         
         ClassifierResults[] concatenatedRes = ClassifierResults.concatenateClassifierResults(res);
-        matlab_buildROCDiagrams("C:/Temp/rocDiaTest/", "testDias", dset, concatenatedRes, cnames);
+        matlab_buildROCDiagrams("C:/Temp/rocDiaTest/", "testDias", dset, concatenatedRes, cnames, true);
         
         //single fold 
 //        String baseReadPath = "C:/JamesLPHD/Alcohol/JOURNALPAPER/Results/";

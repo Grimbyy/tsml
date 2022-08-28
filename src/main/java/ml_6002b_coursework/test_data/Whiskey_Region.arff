@@ -1,0 +1,18 @@
+@RELATION Locations
+
+@ATTRIBUTE peaty {yes,no}
+@ATTRIBUTE woody {yes,no}
+@ATTRIBUTE sweet {yes,no}
+@ATTRIBUTE region {Islay,Speyside}
+
+@data
+yes,no,yes,Islay
+yes,yes,yes,Islay
+yes,no,no,Islay
+yes,no,no,Islay
+no,yes,no,Islay
+no,yes,yes,Speyside
+no,yes,yes,Speyside
+no,yes,yes,Speyside
+no,no,yes,Speyside
+no,no,yes,Speyside

@@ -184,6 +184,15 @@ public class ClassifierExperiments {
      * 5) Samples the dataset.
      * 6) If we're good to go, runs the experiment.
      */
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK = "\u001B[30m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_PURPLE = "\u001B[35m";
+    public static final String ANSI_CYAN = "\u001B[36m";
+    public static final String ANSI_WHITE = "\u001B[37m";
     public static ClassifierResults[] setupAndRunExperiment(ExperimentalArguments expSettings) throws Exception {
         if (beQuiet)
             LOGGER.setLevel(Level.SEVERE); // only print severe things
@@ -213,13 +222,15 @@ public class ClassifierExperiments {
 
         buildExperimentDirectoriesAndFilenames(expSettings, expSettings.classifier);
         //Check whether results already exists, if so and force evaluation is false: just quit
-        if (quitEarlyDueToResultsExistence(expSettings))
+        if (quitEarlyDueToResultsExistence(expSettings) || new File(expSettings.resultsWriteLocation+expSettings.estimatorName+"/Predictions/"+expSettings.datasetName+"/testFold0.csv").exists())
             return null;
-
+        System.out.println(ANSI_RED+"["+expSettings.estimatorName+"/Loading]"+expSettings.datasetName+ANSI_RESET);
         Instances[] data = DatasetLoading.sampleDataset(expSettings.dataReadLocation, expSettings.datasetName, expSettings.foldId);
         setupClassifierExperimentalOptions(expSettings, expSettings.classifier, data[0]);
+        System.out.println(ANSI_BLUE+"["+expSettings.estimatorName+"/Starting]"+expSettings.datasetName+ANSI_RESET);
         ClassifierResults[] results = runExperiment(expSettings, data[0], data[1], expSettings.classifier);
-        LOGGER.log(Level.INFO, "Experiment finished " + expSettings.toShortString() + ", Test Acc:" + results[1].getAcc());
+        //LOGGER.log(Level.INFO, "Experiment finished " + expSettings.toShortString() + ", Test Acc:" + results[1].getAcc());
+        System.out.println(ANSI_GREEN+"["+expSettings.estimatorName+"/Complete]"+expSettings.datasetName+ANSI_RESET);
 
         return results;
     }
@@ -251,9 +262,15 @@ public class ClassifierExperiments {
         LOGGER.log(Level.FINE, "Preamble complete, real experiment starting.");
 
         try {
+            System.out.println(ANSI_RED + "["+expSettings.estimatorName+"/Training Started]" + ANSI_RESET);
             ClassifierResults trainResults = training(expSettings, classifier, trainSet);
+            System.out.println(ANSI_GREEN + "["+expSettings.estimatorName+"/Training Complete]" + ANSI_RESET);
+            System.out.println(ANSI_RED + "["+expSettings.estimatorName+"/Post Training Ops Started]" + ANSI_RESET);
             postTrainingOperations(expSettings, classifier);
+            System.out.println(ANSI_GREEN + "["+expSettings.estimatorName+"/Post Training Ops Completed]" + ANSI_RESET);
+            System.out.println(ANSI_RED + "["+expSettings.estimatorName+"/Testing Started]" + ANSI_RESET);
             ClassifierResults testResults = testing(expSettings, classifier, testSet, trainResults);
+            System.out.println(ANSI_GREEN + "["+expSettings.estimatorName+"/Testing Complete]" + ANSI_RESET);
 
             experimentResults = new ClassifierResults[] {trainResults, testResults};
         }
@@ -306,6 +323,7 @@ public class ClassifierExperiments {
         //Build on the full train data here
         long buildTime = System.nanoTime();
         classifier.buildClassifier(trainSet);
+        System.out.println(ANSI_GREEN + "["+expSettings.estimatorName+"/Training Completed]" + ANSI_RESET);
         buildTime = System.nanoTime() - buildTime;
         LOGGER.log(Level.FINE, "Training complete");
 
@@ -406,7 +424,7 @@ public class ClassifierExperiments {
                 LOGGER.log(Level.FINE, "Test results written");
             }
             else {
-                LOGGER.log(Level.INFO, "Test file already found, written by another process.");
+                LOGGER.log(Level.INFO, "Test file already found ("+expSettings.estimatorName+"/"+expSettings.datasetName+"), written by another process.");
                 testResults = new ClassifierResults(expSettings.testFoldFileName);
             }
         }
@@ -464,7 +482,7 @@ public class ClassifierExperiments {
         if (!expSettings.forceEvaluation && !expSettings.forceEvaluationTestFold && !expSettings.forceEvaluationTrainFold &&
                 ((!expSettings.generateErrorEstimateOnTrainSet && testFoldExists) ||
                         (expSettings.generateErrorEstimateOnTrainSet && trainFoldExists  && testFoldExists))) {
-            LOGGER.log(Level.INFO, expSettings.toShortString() + " already exists at " + expSettings.testFoldFileName + ", exiting.");
+            //LOGGER.log(Level.INFO, expSettings.toShortString() + " already exists at " + expSettings.testFoldFileName + ", exiting.");
             quit = true;
         }
 

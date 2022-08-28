@@ -190,6 +190,6 @@ end
 
 set(f, 'CreateFcn', 'set(gcbo,''Visible'',''on'')');
 
-saveas(f, name);
+saveas(f, "test1212");
 % all done...
 
